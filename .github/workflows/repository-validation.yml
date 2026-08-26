@@ -1,0 +1,56 @@
+name: Repository Validation
+
+on:
+  push:
+    paths:
+      - 'Assets/**'
+      - 'Packages/**'
+      - 'ProjectSettings/**'
+      - '.github/workflows/repository-validation.yml'
+  pull_request:
+    paths:
+      - 'Assets/**'
+      - 'Packages/**'
+      - 'ProjectSettings/**'
+      - '.github/workflows/repository-validation.yml'
+
+jobs:
+  structure:
+    name: Validate Unity Repository Structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate required Unity files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f ProjectSettings/ProjectVersion.txt
+          test -f ProjectSettings/EditorBuildSettings.asset
+          test -f Packages/manifest.json
+          test -f Assets/Scenes/Phase1Prototype.unity
+          test -f Assets/Scenes/Phase1Prototype.unity.meta
+
+      - name: Validate scene reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'Assets/Scenes/Phase1Prototype.unity' ProjectSettings/EditorBuildSettings.asset
+          grep -q 'guid: 3c8af1cb9a7d4f09a2d3baf6cce22d11' ProjectSettings/EditorBuildSettings.asset
+          grep -q 'guid: 3c8af1cb9a7d4f09a2d3baf6cce22d11' Assets/Scenes/Phase1Prototype.unity.meta
+
+      - name: Validate no duplicate domain layer
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -d Assets/Scripts/Game.Domain; then
+            echo 'Duplicate Game.Domain layer still exists.'
+            exit 1
+          fi
+
+      - name: Validate Android configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -R -q 'Android' ProjectSettings 2>/dev/null || true
+          test -f ProjectSettings/ProjectVersion.txt
