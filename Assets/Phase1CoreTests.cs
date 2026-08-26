@@ -11,6 +11,33 @@ namespace DiceRoguelike.Tests
     public sealed class Phase1CoreTests
     {
         [Test]
+        public void StateMachine_StartsAndReturnsToBoard()
+        {
+            var machine = new GameStateMachine();
+
+            machine.TransitionTo(GameState.MainMenu);
+            machine.TransitionTo(GameState.HeroSelection);
+            machine.TransitionTo(GameState.RunInitialization);
+            machine.TransitionTo(GameState.Board);
+            machine.TransitionTo(GameState.DiceRoll);
+            machine.TransitionTo(GameState.Movement);
+            machine.TransitionTo(GameState.TileResolution);
+            machine.TransitionTo(GameState.Reward);
+            machine.TransitionTo(GameState.Board);
+
+            Assert.That(machine.Current, Is.EqualTo(GameState.Board));
+        }
+
+        [Test]
+        public void StateMachine_RejectsCombatFromMainMenu()
+        {
+            var machine = new GameStateMachine(GameState.MainMenu);
+
+            Assert.That(machine.CanTransitionTo(GameState.Combat), Is.False);
+            Assert.Throws<InvalidOperationException>(() => machine.TransitionTo(GameState.Combat));
+        }
+
+        [Test]
         public void Dice_StaysWithinConfiguredRange()
         {
             var dice = new Dice(6);
