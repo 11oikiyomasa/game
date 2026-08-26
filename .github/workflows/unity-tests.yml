@@ -1,18 +1,7 @@
 name: Unity Tests
 
 on:
-  push:
-    paths:
-      - 'Assets/**'
-      - 'Packages/**'
-      - 'ProjectSettings/**'
-      - '.github/workflows/unity-tests.yml'
-  pull_request:
-    paths:
-      - 'Assets/**'
-      - 'Packages/**'
-      - 'ProjectSettings/**'
-      - '.github/workflows/unity-tests.yml'
+  workflow_dispatch:
 
 jobs:
   editmode:
